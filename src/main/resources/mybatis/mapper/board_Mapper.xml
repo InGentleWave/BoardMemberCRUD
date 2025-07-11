@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.or.ddit.controller.chapt08.board.mapper.IBoardMapper">
+	
+	<insert id="create" parameterType="kr.or.ddit.vo.crud.Board" useGeneratedKeys="true">
+		<selectKey keyProperty="boardNo" resultType="int" order="BEFORE">
+			select seq_board.nextval from dual
+		</selectKey>
+		insert into board (
+			board_no, title, writer, content, reg_date
+		) values (
+			#{boardNo}, #{title}, #{writer}, #{content}, sysdate
+		)
+	</insert>
+	
+	<select id="list" resultType="kr.or.ddit.vo.crud.Board">
+		select
+			board_no, title, writer, content, reg_date
+		from board
+		order by board_no desc
+	</select>
+	
+	<select id="read" parameterType="int" resultType="kr.or.ddit.vo.crud.Board">
+		select
+			board_no, title, writer, content, reg_date
+		from board
+		where board_no = #{boardNo}
+		order by board_no desc
+	</select>
+	
+	<update id="modify" parameterType="kr.or.ddit.vo.crud.Board">
+		update board
+		set
+			title = #{title},
+			writer = #{writer},
+			content = #{content}
+		where board_no = #{boardNo}
+	</update>
+	
+	<delete id="remove" parameterType="int">
+		delete from board
+		where board_no = #{boardNo}
+	</delete>
+	
+	<select id="search" parameterType="kr.or.ddit.vo.crud.Board" resultType="kr.or.ddit.vo.crud.Board">
+		select
+			board_no, title, writer, content, reg_date
+		from board
+		where 1=1
+		<if test="title != null and title != ''">
+			and title like '%'||#{title}||'%'
+		</if>
+		order by board_no desc
+	</select>
+</mapper>
