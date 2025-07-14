@@ -225,9 +225,9 @@ public class Chapter08MybatisController {
 				- mybatis.type-aliases-package=kr.or.ddit.vo
 				
 				# TypeAlias 설정 방법
-				1) application.propertiex 파일 내, aliase-package 설정
+				1) application.properties 파일 내, aliase-package 설정
 					> 해당 클래스의 위치를 패키지와 클래스명까지 작성해준다.
-				2) VO 클래스의 @Alias 어노테이션으로 alias 서렂ㅇ
+				2) VO 클래스의 @Alias 어노테이션으로 alias 설정
 		8. '_'로 구분된 컬럼명 자동 매핑
 		
 			- 마이바티스 설정의 mapUnderscoreToCamelCase 프로퍼티 값을 true로 지정하면 '_'로 구분된 컬럼명을
@@ -283,12 +283,82 @@ public class Chapter08MybatisController {
  			- 마이바티스는 동적 SQL을 조립하는 구조를 지원하고 있으며, SQL 조립 규칙을 매핑 파일에 정의할 수 있다.
  			
  			1) 동적으로 SQL을 조립하기 위한 SQL 요소
- 				- <where> 	: where 절 앞 뒤에 내용을 더 추가하거나 삭제할 대 사용하는 요소
+ 				- <where> 	: where 절 앞 뒤에 내용을 더 추가하거나 삭제할 때 사용하는 요소
  				- <if> 		: 조건을 만족할 때만 SQL을 조립할 수 있게 만드는 요소
  				- <choose> 	: 여러 선택 항목에서 조건에 만족할 때만 SQL을 조립할 수 있게 만드느 요소
  				- <foreach> : 컬렉션이나 배열에 대해 반복 처리를 하기 위한 요소
- 				- <set> 	: set 절 앞 뒤에 내용을 더 추가하거나 삭제할 때 사용하는 요소	
- 							
+ 				- <set> 	: set 절 앞 뒤에 내용을 더 추가하거나 삭제할 때 사용하는 요소
+ 				
+		11. 일대다 관계 테이블 매핑
+		
+			- 마이바티스 기능을 활용하여 매핑 파일을 적절하게 정의하면 일대다 관계 테이블 매핑을 쉽게 처리할 수 있다.
+			
+			1) 게시판 구현 설명
+			
+			- 회원 등록 화면 컨트롤러 만들기 (member/CrudMemberController)
+			- 회원 등록 화면 컨트롤러 메소드 만들기 (crudMemberRegisterForm:get)
+			- 회원 등록 화면 만들기 (crud/member/register.jsp)
+			- 여기까지 확인
+			
+			- 회원 등록 기능 컨트롤러 메소드 만들기 (crudMemberRegister:post)
+			- 회원 등록 기능 서비스 인터페이스 메소드 만들기
+			- 회원 등록 기능 서비스 클래스 메소드 만들기
+			- 회원 등록 기능 Mapper 인터페이스 메소드 만들기
+			- 회원 등록 기능 Mapper xml 쿼리 만들기
+			- 회원 등록 완료 페이지 만들기(crud/member/success.jsp)
+			- 여기까지 확인
+			
+			- 회원 목록 화면 컨트롤러 메소드 만들기 (crudMemberList:get)
+			- 회원 목록 화면 서비스 인터페이스 메소드 만들기
+			- 회원 목록 화면 서비스 클래스 메소드 만들기
+			- 회원 목록 화면 Mapper 인터페이스 메소드 만들기
+			- 회원 목록 화면 Mapper xml 쿼리 만들기
+			- 회원 목록 화면 페이지 만들기 (crud/member/list.jsp)
+			- 여기까지 확인
+			
+			- 회원 상세 화면 컨트롤러 메소드 만들기 (crudMemberRead:get)
+			- 회원 상세 화면 서비스 인터페이스 메소드 만들기
+			- 회원 상세 화면 서비스 클래스 메소드 만들기
+			- 회원 상세 화면 Mapper 인터페이스 메소드 만들기
+			- 회원 상세 화면 Mapper xml 쿼리 만들기
+			- 회원 상세 화면 페이지 만들기 (crud/member/read.jsp)
+			- 여기까지 확인
+			
+			-- Member 테이블 전체 조회
+			select * from member;
+			-- MemberAuth 테이블 전체 조회
+			select * from member_auth;
+			
+			-- JOIN의 기준테이블과 조인테이블 선정
+			-- 기준테이블 : 회원
+			-- 조인테이블 : 회원권한
+			select
+			    m.USER_NO, USER_ID, USER_PW, USER_NAME, REG_DATE, UPD_DATE, ENABLED,
+			    AUTH
+			from member m
+			left outer join member_auth ma on (m.user_no = ma.user_no);
+			
+			- 회원 수정 화면 컨트롤러 메소드 만들기 (crudMemberModifyForm:get)
+			- 회원 수정 화면 서비스 인터페이스 메소드 만들기
+			- 회원 수정 화면 서비스 클래스 메소드 만들기
+			- 회원 수정 화면 Mapper 인터페이스 메소드 만들기
+			- 회원 수정 화면 Mapper xml 쿼리 만들기
+			- 회원 수정 화면 페이지 만들기 (crud/member/modify.jsp)
+			- 여기까지 확인
+			
+			- 회원 수정 기능 컨트롤러 메소드 만들기 (crudMemberModify:post)
+			- 회원 수정 기능 서비스 인터페이스 메소드 만들기
+			- 회원 수정 기능 서비스 클래스 메소드 만들기
+			- 회원 수정 기능 Mapper 인터페이스 메소드 만들기
+			- 회원 수정 기능 Mapper xml 쿼리 만들기
+			- 여기까지 확인
+			
+			- 회원 삭제 화면 컨트롤러 메소드 만들기 (crudMemberDelete:post)
+			- 회원 삭제 화면 서비스 인터페이스 메소드 만들기
+			- 회원 삭제 화면 서비스 클래스 메소드 만들기
+			- 회원 삭제 화면 Mapper 인터페이스 메소드 만들기
+			- 회원 삭제 화면 Mapper xml 쿼리 만들기
+			- 여기까지 확인 							
 	 */
 	
 	
