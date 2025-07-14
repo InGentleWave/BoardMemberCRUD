@@ -203,6 +203,91 @@ public class Chapter08MybatisController {
 				- 게시판 검색 기능 Mapper xml 쿼리 만들기
 				- 게시판 검색 기능 완료 페이지 만들기(crud/board/list.jsp)
 				- 여기까지 확인
+				
+				- 게시판 목록 화면 검색 페이지 추가 (crud/board/list.jsp)
+				- 게시판 검색 기능 컨트롤러 메소드 만들기 (crudSearch:post)
+				- 게시판 검색 기능 서비스 인터페이스 메소드 만들기
+				- 게시판 검색 기능 서비스 클래스 메소드 만들기
+				- 게시판 검색 기능 Mapper 인터페이스 메소드 만들기
+				- 게시판 검색 기능 Mapper xml 쿼리 만들기
+				- 게시판 검색 기능 완료 페이지 만들기(crud/board/list.jsp)
+				- 여기까지 확인
+				
+				- 기본 CRUD 끝
+				
+		7. 별칭 적용
+		
+			- TypeAlias로 맵핑 파일에서 반복적으로 사용될 패키지의 이름을 정의한다.
+			
+			1) 마이바티스 설정
+				
+				1-1) application.properties 설정
+				- mybatis.type-aliases-package=kr.or.ddit.vo
+				
+				# TypeAlias 설정 방법
+				1) application.propertiex 파일 내, aliase-package 설정
+					> 해당 클래스의 위치를 패키지와 클래스명까지 작성해준다.
+				2) VO 클래스의 @Alias 어노테이션으로 alias 서렂ㅇ
+		8. '_'로 구분된 컬럼명 자동 매핑
+		
+			- 마이바티스 설정의 mapUnderscoreToCamelCase 프로퍼티 값을 true로 지정하면 '_'로 구분된 컬럼명을
+				소문자 낙타표기법의 프로퍼티명으로 자동 매핑할 수 있다.
+			
+			1) 마이바티스 설정
+			
+				1-1) application.properties 설정
+				- mybatis.configuration.map-underscore-to-camel-case=true
+
+		9. 기본키 취득
+		
+		 	- 마이바티스는 useGeneratedKeys 속성을 이용하여 insert 할 때 데이터 베이스 측에서 채번된 기본키를 취득할 수 있다.
+		 	
+		 	1) 마이바티스 설정
+		 	
+		 		1-1) 매핑 파일 수정 (board_Mapper.xml)
+		 		- create 부분의 속성 추가
+		 		> <insert id="create" parameterType="Board" useGeneratedKeys="true">
+		 		>	<selectKey order="BEFORE" resultType="int" keyProperty="boardNo">
+	 			>		select seq_board.nextval from dual
+	 			>	</selectKey>	
+	 			>	insert into board(...)	
+	 			>	values (#{boardNo},#{title},...)
+	 			>	</insert>
+	 			
+	 			아래 insert 쿼리가 실행 되기 전, selectKey 태그 내에 있는 쿼리가 먼저 실행되어
+	 			최신의 boardNo를 생성하고 생성된 boardNo를 sql쿼리가 담겨있는 insert 태그까지 넘어올 때
+	 			넘겨주고 있는 파라미터(board)의 property인 boardNo에 세팅한다.
+	 			세팅된 boardNo를 아래에서 insert 시, 등록 값으로 사용하고 board라는 자바빈즈 객체에 담겨
+	 			최종 컨트롤러까지 넘어간다.
+	 			
+	 			*** seq_board.nextval 대신 현재의 seq 번호를 가져오기 위해 currval을 사용하게 되는 경우가 있습니다.
+	 				이 때 사용시 주의사항이 있습니다.
+	 				
+	 				- select seq_board.currval from dual
+	 				> 위 select 쿼리를 사용시, currval을 사용하는데 있어서 사용 불가에 대한 에러가 발생할 수 있습니다.
+	 				 	currval을 사용할 때는 select seq_board.nextval from dual와 같이 먼저 최초로 실행 후,
+	 				 	select seq_board.currval from dual을 사용하면 에러가 없습니다.
+ 				 	> 같은 세션내에서의 실행이 이뤄지지 않았기 때문에 currval로 데이터를 가져오는데 에러가 발생합니다.
+ 				 	
+ 				 	# 그럼에도 나는 가져와야겠다! 다 필요없고 그냥 내놔! 하고 싶으면
+ 				 	> select last_number from user_sequences where sequence_name = '시퀀스명';
+ 				 	> select last_number from user_sequences where sequence_name = 'seq_board';
+ 				 	쿼리로 가져오면 된다.(권장사항 아님)
+			 	
+			 	2-2) 컨트롤러 메소드에서 crudRegister 부분의 등록이 되고나서 리턴되는 방향성을 수정
+			 		- 지금은 완료페이지로 전환되지만, board에 담겨있는 boardNo를 이용하여 상세보기 페이지로 전환해도 무방!
+ 		
+ 		
+ 		10. 동적 SQL
+ 		
+ 			- 마이바티스는 동적 SQL을 조립하는 구조를 지원하고 있으며, SQL 조립 규칙을 매핑 파일에 정의할 수 있다.
+ 			
+ 			1) 동적으로 SQL을 조립하기 위한 SQL 요소
+ 				- <where> 	: where 절 앞 뒤에 내용을 더 추가하거나 삭제할 대 사용하는 요소
+ 				- <if> 		: 조건을 만족할 때만 SQL을 조립할 수 있게 만드는 요소
+ 				- <choose> 	: 여러 선택 항목에서 조건에 만족할 때만 SQL을 조립할 수 있게 만드느 요소
+ 				- <foreach> : 컬렉션이나 배열에 대해 반복 처리를 하기 위한 요소
+ 				- <set> 	: set 절 앞 뒤에 내용을 더 추가하거나 삭제할 때 사용하는 요소				
 	 */
 	
 	
